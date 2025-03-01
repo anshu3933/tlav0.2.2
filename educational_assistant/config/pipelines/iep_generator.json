@@ -1,0 +1,80 @@
+{
+  "name": "iep_generator",
+  "version": "0.1.0",
+  "description": "IEP generator pipeline for educational assistant",
+  
+  "environment": {
+    "use_cache": true,
+    "debug": false
+  },
+  
+  "stages": {
+    "document_processing": {
+      "pdf_processor": {
+        "type": "pdf",
+        "params": {
+          "extraction_timeout": 60,
+          "extract_images": false
+        }
+      },
+      "chunking": {
+        "type": "text_chunker",
+        "params": {
+          "chunk_size": 1500,
+          "chunk_overlap": 300
+        }
+      }
+    },
+    
+    "analysis": {
+      "text_analyzer": {
+        "type": "education_analyzer",
+        "params": {
+          "extract_student_info": true,
+          "extract_goals": true,
+          "extract_accommodations": true
+        }
+      }
+    },
+    
+    "llm": {
+      "openai": {
+        "type": "openai",
+        "params": {
+          "model": "gpt-4o",
+          "temperature": 0.5,
+          "max_tokens": 4000,
+          "system_prompt": "You are an AI assistant specialized in creating educational IEPs that accommodate students with special needs."
+        }
+      }
+    },
+    
+    "generation": {
+      "iep_template": {
+        "type": "structured_template",
+        "params": {
+          "sections": [
+            "student_information",
+            "present_levels",
+            "goals_and_objectives",
+            "accommodations",
+            "services",
+            "assessment"
+          ],
+          "format": "markdown"
+        }
+      }
+    },
+    
+    "output": {
+      "formatter": {
+        "type": "document_formatter",
+        "params": {
+          "output_format": "markdown",
+          "include_timestamps": true,
+          "include_metadata": true
+        }
+      }
+    }
+  }
+}

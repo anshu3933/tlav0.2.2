@@ -1,0 +1,78 @@
+name: rag_pipeline
+version: 0.1.0
+description: Retrieval-Augmented Generation pipeline for educational assistant
+
+environment:
+  use_cache: true
+  debug: false
+
+stages:
+  document_processing:
+    pdf_processor:
+      type: pdf
+      params:
+        extraction_timeout: 30
+        extract_images: false
+    
+    docx_processor:
+      type: docx
+      params:
+        extract_tables: true
+        extract_headers: true
+    
+    chunking:
+      type: text_chunker
+      params:
+        chunk_size: 1000
+        chunk_overlap: 200
+        split_by_headers: true
+
+  embedding:
+    chunking:
+      type: text_chunker
+      params:
+        chunk_size: 1000
+        chunk_overlap: 200
+    
+    embedding_model:
+      type: openai
+      params:
+        model: text-embedding-ada-002
+        dimensions: 1536
+        batch_size: 20
+
+  vector_store:
+    faiss:
+      type: faiss
+      params:
+        index_dir: models/faiss_index
+        use_hnsw: true
+        ef_construction: 200
+        ef_search: 50
+        m: 16
+        cache_embeddings: true
+
+  retrieval:
+    hybrid_retriever:
+      type: hybrid
+      params:
+        k_documents: 4
+        use_web_search: false
+        max_web_results: 3
+        search_type: similarity
+
+  generation:
+    llm:
+      type: openai
+      params:
+        model: gpt-4o
+        temperature: 0.7
+        max_tokens: 2000
+        request_timeout: 60
+        system_prompt: "You are an AI assistant specializing in education."
+    
+    prompting:
+      type: education_rag
+      params:
+        include_metadata: true
+        format_context: true
