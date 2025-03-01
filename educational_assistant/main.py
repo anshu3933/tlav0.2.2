@@ -6,8 +6,10 @@ from typing import Dict, Any, Optional
 from config.app_config import config
 from config.logging_config import get_module_logger
 from core.embeddings.vector_store import FAISSVectorStore
+from core.embeddings.embedding_manager import EmbeddingManager  # Added missing import
 from core.llm.llm_client import LLMClient
 from core.rag.chain_builder import RAGChainBuilder
+from core.rag.retriever import HybridRetriever, WebAugmentedRetriever  # Added missing import
 from ui.state_manager import state_manager
 
 # Create a logger for this module
@@ -141,6 +143,7 @@ def load_app_components() -> Dict[str, Any]:
         
         # Initialize pipeline components
         logger.debug("Initializing pipeline components")
+        # Import these here rather than at the module level
         from core.pipelines.iep_pipeline import IEPGenerationPipeline
         from core.pipelines.lesson_plan_pipeline import LessonPlanGenerationPipeline
         
